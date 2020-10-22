@@ -16,6 +16,8 @@ m['com(a,r) sig'] = {"message": None, "alreadyTransmitted": False} # A -> B
 m['b sig'] = {"message": None, "alreadyTransmitted": False} # A <- B
 m['a r sig'] = {"message": None, "alreadyTransmitted": False} # A -> B
 
+# Commitment
+
 # https://pycryptodome.readthedocs.io/en/latest/src/hash/sha256.html
 from Crypto.Hash import SHA256
 from Crypto.Random import random
@@ -27,6 +29,8 @@ def com(m, r):
 
 def verify_com(m, r, c):
     return com(m, r) == c
+
+# Generate RSA key pair
 
 # https://pycryptodome.readthedocs.io/en/latest/src/public_key/rsa.html
 from Crypto.PublicKey import RSA
@@ -44,6 +48,8 @@ from Crypto.PublicKey import RSA
 
 # generateKeyPair('Alice')
 # generateKeyPair('Bob')
+
+# Signature
 
 # https://www.pycryptodome.org/en/latest/src/signature/pkcs1_v1_5.html
 from Crypto.Signature import pkcs1_15

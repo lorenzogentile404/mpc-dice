@@ -26,7 +26,7 @@ while True:
         break
 
     m_in = c.recv(1024).decode('utf-8')
-    print('Alice sent: ' + next_m_key + ' = ' + m_in)
+    print('Alice sent: ' + next_m_key + ' = \n' + m_in.replace(' ', '\n\n', next_m_key.count(' ')) + '\n\n')
     m[next_m_key] = {'message': m_in, 'alreadyTransmitted': True}
 
     # Waiting for a message for Alice

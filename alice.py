@@ -33,7 +33,7 @@ while True:
         break
 
     m_in = s.recv(1024).decode('utf-8')
-    print('Bob sent: ' + next_m_key + ' = ' + m_in)
+    print('Bob sent: ' + next_m_key + ' = \n' + m_in.replace(' ', '\n\n', next_m_key.count(' ')) + '\n\n')
     m[next_m_key] = {'message': m_in, 'alreadyTransmitted': True}
 
 # Close the coonection with Bob
