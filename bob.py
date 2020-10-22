@@ -48,16 +48,16 @@ c = m['com(a,r) sig']['message'].split()[0]
 a = m['a r sig']['message'].split()[0]
 r = m['a r sig']['message'].split()[1]
 
+# Verify commitment
+assert(verify_com(a,r,c))
+print('\ncom(a,r) valid.\n')
+
 # Verify signatures
 assert(verify_sig(c , 'Alice', extract_sig('com(a,r) sig', m['com(a,r) sig']['message'])))
 print('\ncom(a|r) sig valid.\n')
 
 assert(verify_sig(a + ' ' + r, 'Alice', extract_sig('a r sig', m['a r sig']['message'])))
 print('\na r sig valid.\n')
-
-# Verify commitment
-assert(verify_com(a,r,c))
-print('\ncom(a,r) valid.\n')
 
 # Compute output of the dice
 compute_output(a, b)
