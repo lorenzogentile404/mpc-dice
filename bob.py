@@ -1,6 +1,6 @@
 from common import *
 
-# 1) Communication section
+# 1) Communication
 
 # Create a TCP socket object
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -11,7 +11,13 @@ s.listen(1)
 
 # Establish connection with Alice
 c, addr = s.accept()
-print("Connection from: " + str(addr))
+print('Connection from: ' + str(addr))
+
+# 1.1) Preprocessing
+
+b = input('b > ')
+m['b sig'] = {'message': format_sig_m(b,'Bob'), 'alreadyTransmitted': False} # A <- B
+
 while True:
 
     # Waiting for a message from Alice
@@ -20,35 +26,39 @@ while True:
         break
 
     m_in = c.recv(1024).decode('utf-8')
-    if not m_in:
-        break
-
-    m[next_m_key] = m_in
-    print('Alice sent ' + next_m_key + ': ' + m_in)
+    print('Alice sent: ' + next_m_key + ' = ' + m_in)
+    m[next_m_key] = {'message': m_in, 'alreadyTransmitted': True}
 
     # Waiting for a message for Alice
     next_m_key = get_next_m_key(m)
     if next_m_key == None:
         break
 
-    m_out = input(next_m_key + '> ')
-    if m_out == 'q':
-        break
-
-    m[next_m_key] = m_out
+    m_out = input('Press enter to send: ' + next_m_key + ' > ') or m[next_m_key]['message']
     c.send(m_out.encode('utf-8'))
+    m[next_m_key] = {'message': m_out, 'alreadyTransmitted': True}
 
 # Close connection with Alice
 c.close()
 
-# 2) Postprocessing section
+# 2) Postprocessing
 
 # Extract information from messages
+c = m['com(a,r) sig']['message'].split()[0]
+a = m['a r sig']['message'].split()[0]
+r = m['a r sig']['message'].split()[1]
 
 # Verify signatures
+assert(verify_sig(c , 'Alice', m['com(a,r) sig']['message'].replace(c + ' ','', 1)))
+print('\ncom(a|r) sig valid.\n')
+
+assert(verify_sig(a + ' ' + r, 'Alice', m['a r sig']['message'].replace(a + ' ' + r + ' ','', 1)))
+print('\na r sig valid.\n')
+
+# Verify commitment
+assert(verify_com(a,r,c))
+print('\ncom(a,r) valid.\n')
 
 # Compute output of the dice
-a = binary_string_to_int(m['a,r + sig'][0:3])
-b = binary_string_to_int(m['b + sig'][0:3])
-d = (a ^ b) % 6 + 1
+d = (binary_string_to_int(a) ^ binary_string_to_int(b)) % 6 + 1
 print('Compute d = (a ^ b) % 6 + 1: ' + str(a) + ' ^ ' + str(b) + ' % 6 + 1 = ' + str(d))
