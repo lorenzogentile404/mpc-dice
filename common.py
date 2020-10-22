@@ -1,20 +1,27 @@
 import socket
 import collections
 
-# Support function to get the key of the next expected message
-def get_next_m_key(m):
-    return ([key for key, value in m.items() if value["alreadyTransmitted"] == False] + [None])[0]
+# Security parameters
+k_RSA = 2048 # Signatures
+k_com = 1024 # Commitment
 
-# Support function to convert a binary string to int
-def binary_string_to_int(m):
-    return sum([int(b)*2**p for b,p in zip(m, range(len(m) - 1, -1, -1))])
+# Communication parameters
 
-# Protocol messages
+# https://wiki.python.org/moin/TcpCommunication
+TCP_IP = '127.0.0.1'
+TCP_PORT = 12345
+BUFFER_SIZE = 1024
+
+# Protocol messages and flag indicating if the message has already been transmitted
 m = collections.OrderedDict()
 
 m['com(a,r) sig'] = {"message": None, "alreadyTransmitted": False} # A -> B
 m['b sig'] = {"message": None, "alreadyTransmitted": False} # A <- B
 m['a r sig'] = {"message": None, "alreadyTransmitted": False} # A -> B
+
+# Support function to get the key of the next expected message
+def get_next_m_key(m):
+    return ([key for key, value in m.items() if value["alreadyTransmitted"] == False] + [None])[0]
 
 # Commitment
 
@@ -78,5 +85,39 @@ def verify_sig(m, name, s):
     except (ValueError, TypeError):
         return False
 
-def format_sig_m(m, name):
+# Support function to sign and format a message
+def sig_m(m, name):
     return m + ' ' + sig(m, name).decode('latin-1')
+
+# Support function to print nicely a signed message
+def print_sig_m(key, m):
+    p = '\n\n' + m.split()[0]
+    if key.count(' ') > 1:
+        p += '\n\n' + m.split()[1]
+    s = extract_sig(key, m)
+    p += '\n\n' + str(s.encode('latin-1')) + '\n\n'
+    return p
+
+# Support function to extract signature from a signed message
+# structured as field1 optional_field2 sig
+def extract_sig(key, m):
+    before_sig = m.split()[0] + ' '
+    if key.count(' ') > 1:
+        before_sig = m.split()[0] + ' ' + m.split()[1] + ' '
+    s = m.replace(before_sig, '', 1)
+    return s
+
+# Support function to convert a binary string to int
+def binary_string_to_int(m):
+    return sum([int(b)*2**p for b,p in zip(m, range(len(m) - 1, -1, -1))])
+
+# Compute output and print it nicely
+def compute_output(a, b):
+    # Compute
+    a_xor_b = binary_string_to_int(a) ^ binary_string_to_int(b)
+    d = a_xor_b % 6 + 1
+
+    # Print steps
+    print('Compute d = (a ^ b) % 6 + 1')
+    print( a + ' ^ ' + b + ' = ' + ''.join(['1' if i!=j else '0' for i,j in zip(a, b)]) + ' = ' + str(a_xor_b) + ' (base 10)')
+    print(str(a_xor_b) + ' % 6 + 1 = ' + str(d))

@@ -5,8 +5,8 @@ from common import *
 # Create a TCP socket object
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Bind the port 12345 and listen to requests coming from 127.0.0.1
-s.bind(('127.0.0.1', 12345))
+# Bind the port TCP_PORT and listen to requests coming from TCP_IP
+s.bind((TCP_IP, TCP_PORT))
 s.listen(1)
 
 # Establish connection with Alice
@@ -16,7 +16,7 @@ print('Connection from: ' + str(addr))
 # 1.1) Preprocessing
 
 b = input('b > ')
-m['b sig'] = {'message': format_sig_m(b,'Bob'), 'alreadyTransmitted': False} # A <- B
+m['b sig'] = {'message': sig_m(b,'Bob'), 'alreadyTransmitted': False} # A <- B
 
 while True:
 
@@ -25,8 +25,8 @@ while True:
     if next_m_key == None:
         break
 
-    m_in = c.recv(1024).decode('utf-8')
-    print('Alice sent: ' + next_m_key + ' = \n' + m_in.replace(' ', '\n\n', next_m_key.count(' ')) + '\n\n')
+    m_in = c.recv(BUFFER_SIZE).decode('utf-8')
+    print('Alice sent: ' + next_m_key + ' = ' + print_sig_m(next_m_key, m_in))
     m[next_m_key] = {'message': m_in, 'alreadyTransmitted': True}
 
     # Waiting for a message for Alice
@@ -49,10 +49,10 @@ a = m['a r sig']['message'].split()[0]
 r = m['a r sig']['message'].split()[1]
 
 # Verify signatures
-assert(verify_sig(c , 'Alice', m['com(a,r) sig']['message'].replace(c + ' ','', 1)))
+assert(verify_sig(c , 'Alice', extract_sig('com(a,r) sig', m['com(a,r) sig']['message'])))
 print('\ncom(a|r) sig valid.\n')
 
-assert(verify_sig(a + ' ' + r, 'Alice', m['a r sig']['message'].replace(a + ' ' + r + ' ','', 1)))
+assert(verify_sig(a + ' ' + r, 'Alice', extract_sig('a r sig', m['a r sig']['message'])))
 print('\na r sig valid.\n')
 
 # Verify commitment
@@ -60,5 +60,4 @@ assert(verify_com(a,r,c))
 print('\ncom(a,r) valid.\n')
 
 # Compute output of the dice
-d = (binary_string_to_int(a) ^ binary_string_to_int(b)) % 6 + 1
-print('Compute d = (a ^ b) % 6 + 1: ' + str(a) + ' ^ ' + str(b) + ' % 6 + 1 = ' + str(d))
+compute_output(a, b)

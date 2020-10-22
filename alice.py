@@ -5,16 +5,16 @@ from common import *
 # Create a TCP socket object
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Connect to 127.0.0.1:12345
-s.connect(('127.0.0.1', 12345))
+# Connect to TCP_IP:TCP_PORT
+s.connect((TCP_IP, TCP_PORT))
 
 # 1.1) Preprocessing
 
 a = input('a > ')
-r = str(random.getrandbits(1024))
+r = str(random.getrandbits(k_com))
 c = com(a, r)
-m['com(a,r) sig'] = {'message': format_sig_m(c, 'Alice'), 'alreadyTransmitted': False} # A -> B
-m['a r sig'] = {'message': format_sig_m(a + ' ' + r, 'Alice'), 'alreadyTransmitted': False} # A -> B
+m['com(a,r) sig'] = {'message': sig_m(c, 'Alice'), 'alreadyTransmitted': False} # A -> B
+m['a r sig'] = {'message': sig_m(a + ' ' + r, 'Alice'), 'alreadyTransmitted': False} # A -> B
 
 while True:
 
@@ -32,8 +32,8 @@ while True:
     if next_m_key == None:
         break
 
-    m_in = s.recv(1024).decode('utf-8')
-    print('Bob sent: ' + next_m_key + ' = \n' + m_in.replace(' ', '\n\n', next_m_key.count(' ')) + '\n\n')
+    m_in = s.recv(BUFFER_SIZE).decode('utf-8')
+    print('Bob sent: ' + next_m_key + ' = ' + print_sig_m(next_m_key, m_in))
     m[next_m_key] = {'message': m_in, 'alreadyTransmitted': True}
 
 # Close the coonection with Bob
@@ -45,9 +45,8 @@ s.close()
 b = m['b sig']['message'].split()[0]
 
 # Verify signatures
-assert(verify_sig(b , 'Bob', m['b sig']['message'].replace(b + ' ','', 1)))
+assert(verify_sig(b , 'Bob', extract_sig('b sig', m['b sig']['message'])))
 print('\nb sig valid.\n')
 
 # Compute output of the dice
-d = (binary_string_to_int(a) ^ binary_string_to_int(b)) % 6 + 1
-print('Compute d = (a ^ b) % 6 + 1: ' + str(a) + ' ^ ' + str(b) + ' % 6 + 1 = ' + str(d))
+compute_output(a, b)
