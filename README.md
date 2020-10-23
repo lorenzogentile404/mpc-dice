@@ -4,7 +4,7 @@ A Python script implementing an mpc protocol to throw a dice over an insecure ne
 
 ## Challenge
 
-Alice and Bob are playing an online dice game where they must roll a virtual dice representing the 6 sides of a physical dice. However, they do not trust each other and suspect that, if they can just roll dice locally on their computers, they will choose the outcome of the dice dishonestly, choosing the outcomes they need in order to win the game. In order to solve this, they want to execute a protocol among themselves to roll a dice while ensuring that they obtain an honest dice rolling outcome. Unfortunately, Alice and Bob are also using an insecure network, where they have no authenticity, confidentiality and integrity guarantees.
+Alice and Bob are playing an online dice game where they must roll a virtual dice representing the 6 sides of a physical dice. However, they do not trust each other and suspect that, if they can just roll the dice locally on their computers, they will choose the outcome of the dice dishonestly, choosing the outcomes they need in order to win the game. In order to solve this, they want to execute a protocol among themselves to roll a dice while ensuring that they obtain an honest dice rolling outcome. Unfortunately, Alice and Bob are also using an insecure network, where they have no authenticity, confidentiality and integrity guarantees.
 
 How can Alice and Bob play an online dice game over their insecure network when they do not trust each other?
 
